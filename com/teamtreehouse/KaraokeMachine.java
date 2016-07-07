@@ -6,7 +6,9 @@ import com.teamtreehouse.model.SongBook;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class KaraokeMachine {
@@ -19,6 +21,7 @@ public class KaraokeMachine {
     mReader = new BufferedReader(new InputStreamReader(System.in));
     mMenu = new HashMap<String, String>();
     mMenu.put("add", "Add a new song to the song book");
+    mMenu.put("choose", "Choose a song to sing!");
     mMenu.put("quit", "Give up. Exit Program");
   }
 
@@ -43,6 +46,12 @@ public class KaraokeMachine {
             mSongBook.addSong(song);
             System.out.printf("%s added! %n%n", song);
             break;
+          case "choose":
+            String artist = promptArtist();
+            Song artistSong = promptSongForArtist(artist);
+            // TODO: Add to a song queue
+            System.out.printf("You chose: %s %n", artistSong);
+            break;
           case "quit":
             System.out.printf("Thanks for playing! %n");
             break;
@@ -64,5 +73,34 @@ public class KaraokeMachine {
     System.out.print("Enter the video URL: ");
     String videoUrl = mReader.readLine();
     return new Song(artist, title, videoUrl);
+  }
+
+  private String promptArtist() throws IOException {
+    System.out.println("Available artists:");
+    List<String> artists = new ArrayList<>(mSongBook.getArtists());
+    int index = promptForIndex(artists);
+    return artists.get(index);
+  }
+
+  private Song promptSongForArtist(String artist) throws IOException {
+    List<Song> songs = mSongBook.getSongsForArtist(artist);
+    List<String> songTitles = new ArrayList<>();
+    for (Song song : songs) {
+      songTitles.add(song.getTitle());
+    }
+    int index = promptForIndex(songTitles);
+    return songs.get(index);
+  }
+
+  private int promptForIndex(List<String> options) throws IOException {
+    int counter = 1;
+    for (String option : options) {
+      System.out.printf("%d.) %s %n", counter, option);
+      counter++;
+    }
+    String optionAsString = mReader.readLine();
+    int choice = Integer.parseInt(optionAsString.trim());
+    System.out.print("Your choice: ");
+    return choice - 1;
   }
 }
